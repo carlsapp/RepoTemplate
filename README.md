@@ -30,3 +30,4 @@ This is a quick list of changes that I want to make to this template repo.
 * In the contributing section of the docs, talk about coding style, code of conduct, how to push change proposals, branch strategy, etc.
 * In the getting started section of the docs, talk about how someone can get help or file an issue.
 * Integrate the files for Python distributing following https://packaging.python.org/ and https://github.com/pypa/sampleproject
+* Create unittest template and integrate with https://travis-ci.org/
