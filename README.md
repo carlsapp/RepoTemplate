@@ -33,3 +33,4 @@ This is a quick list of changes that I want to make to this template repo.
 * Create unittest template and integrate with https://travis-ci.org/
 * Integrate with [Coveralls](https://coveralls.io)
 * Integrate with https://snyk.io/
+* Integrate with https://codeclimate.com
