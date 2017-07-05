@@ -16,7 +16,7 @@ For more detailed usage, take a look at the `MyPythonScript.py --help` output. F
 We always welcome contributions from others. For more details on ways you can help, see the [CONTRIBUTING](CONTRIBUTING) file.
 
 # License
-All files in this project are licensed under the GNU Lesser General Public License v3.0. For more details about the license, see the [LICENSE](LICENSE) file. For more background on why we choose this license, see the license section of the documentation.
+All files in this project are licensed under the GNU Lesser General Public License v3.0. For more details about the license, see the [LICENSE](LICENSE) file or [the GNU LGPL website](https://www.gnu.org/licenses/lgpl-3.0.en.html). For more background on why we choose this license, see the license section of the documentation.
 
 # Features
 This section needs to be moved to the documentation. But, we'll leave it here until the documentation folder and files get created.
