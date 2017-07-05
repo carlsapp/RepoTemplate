@@ -32,3 +32,4 @@ This is a quick list of changes that I want to make to this template repo.
 * Integrate the files for Python distributing following https://packaging.python.org/ and https://github.com/pypa/sampleproject
 * Create unittest template and integrate with https://travis-ci.org/
 * Integrate with [Coveralls](https://coveralls.io)
+* Integrate with https://snyk.io/
