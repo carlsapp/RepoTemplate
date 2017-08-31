@@ -1,16 +1,27 @@
 # New Project Template
-This repo is a template for quickly starting new open source programming projects. The goal is to have everything you may need to publish the project to the world already written and available. After you copy this repo, you will want to modify this section to give an overview of the project. For this version of the file, we'll provide some links to help you write better Markdown (md) files:
+This repo is a template for quickly starting new open source programming
+projects. The goal is to have everything you may need to publish the project to
+the world already written and available. After you copy this repo, you will
+want to modify this section to give an overview of the project. For this
+version of the file, we'll provide some links to help you write better Markdown (md) files:
 
 * [GitHub's Mastering Markdown Guide](https://guides.github.com/features/mastering-markdown/)
 * [A Great Markdown Cheatsheet by Adam Pritchard](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
 
 # Getting Started
-The easiest way to get started with using this New Project Template is to click the green "Clone or download" drop-down menu in the upper right and choose "Download ZIP". Unzip the files and open a command prompt in the folder. The most basic usage of this script is:
+The easiest way to get started with using this Repo Template is to click the
+green "Clone or download" drop-down menu in the upper right and choose
+"Download ZIP".
+
+Unzip the files and open a command prompt in the folder. The most basic usage
+of this script is:
 
     > python MyPythonScript.py
     This is some pretty output from my Python script
 
-For more detailed usage, take a look at the `MyPythonScript.py --help` output. For API details and more complex example, take a look at the usage documentation (insert link to Usage section of docs when available).
+For more detailed usage, take a look at the `MyPythonScript.py --help` output.
+For API details and more complex examples, take a look at the usage
+documentation (insert link to Usage section of docs when available).
 
 # Contributing
 We always welcome contributions from others. For more details on ways you can help, see the [CONTRIBUTING](CONTRIBUTING) file.

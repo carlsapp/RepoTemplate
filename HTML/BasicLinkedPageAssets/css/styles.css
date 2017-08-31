@@ -1,0 +1,13 @@
+@CHARSET "UTF-8";
+
+/*
+ * This is a basic CSS Style Sheet. For a quick reference, see
+ * 
+ *   https://developer.mozilla.org/en-US/docs/Web/CSS/Reference
+ * 
+ */
+
+body {
+  background-color: #DDD;
+  color: #444;
+}

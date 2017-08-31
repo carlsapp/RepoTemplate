@@ -1,0 +1,16 @@
+***************
+Getting Started
+***************
+
+The files in this project are intended to be used to get an open source project
+up and running in very little time. To get started, follow these steps:
+
+#. Create a GitHub repository
+#. Copy all of the files in this repository to the new repository. Alternatively, you can clone this repository.
+#. Configure Read the Docs to build the documentation in your new repo.
+#. Place your code in the root and src directories.
+#. If your project is licensed under something other than the LGPL, modify the license details. See the :ref:`Choosing a License` section.
+
+Then, feel free to dig into the :ref:`other features available <Features>` and
+don't forget to :ref:`contribute <Contributing>` any changes you make back to
+the community.

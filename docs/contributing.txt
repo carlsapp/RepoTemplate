@@ -1,0 +1,85 @@
+************
+Contributing
+************
+
+Contributions are always welcome! This open-source project depends on community
+contributions for all aspects of the project's development and maintenance.
+Regardless of your skill level or expertises, there are many ways to provide
+meaningful contributions.
+
+
+Documentation
+=============
+
+Documentation is written in reStructuredText and is located in the *docs*
+folder. Information about compiling the documentation into HTML files is
+located in the *docs/README.md* file.
+
+Documentation Style Guide
+-------------------------
+
+Whenever possible, documentation will follow the `Python documentation style
+guide <https://docs.python.org/devguide/documenting.html>`_ and the `style
+guide for Sphinx-based documentations <https://documentation-style-guide-sphinx.readthedocs.io/en/latest/>`_,
+which is essentially a summary of the Python documentation style guide.
+However, the style guide isn't strictly enforced and is used more as a
+guideline for writing documentation that's easy to read and maintain. The
+Python documentation style guide was chosen for its significant history of
+writing documentation in reStructuredText and the suggestions in their guide
+should not be taken lightly.
+
+Building the Documentation
+--------------------------
+
+Instructions for building this documentation is included in the
+:file:`docs/README.md` file because the information is necessary to get an
+easily navigatable version of this documentation.
+
+
+Code Base
+=========
+
+Most of the code for this project is located at the root of the GitHub
+repository.
+
+Programming Languages
+---------------------
+
+In general, we try to use as few programming languages as possible and the
+least complicated programming language possible to get the job done. This
+allows a quick ramp for new contributers and minimizes the introduction of new
+bugs. The below programming languages are used in this project:
+
+* **Markdown** - The :file:`README.md` files located in all directories are written in
+  Markdown. More specifically, they're written in `CommonMark <http://commonmark.org/>`_
+  and may utilize `GitHub Flavored Markdown (GFM) <https://github.github.com/gfm/>`_.
+  Markdown was chosen for its simplicity and support by GitHub. The README
+  files could have been written in reStructuredText, but the added complexity
+  wasn't necessary.
+* **reStructuredText** - The documentation located in the :file:`docs`
+  directory is written in `reStructuredText <http://docutils.sourceforge.net/rst.html>`_.
+  This language allows us to use Sphinx, Read the Docs, and the many other
+  useful tools built around reStructuredText. The language is more complicated
+  than MarkDown, but provides many more features to provide a very rich set of
+  documentation.
+
+File and Folder Structure
+-------------------------
+
+In every directory, there is a :file:`README.md` file that describes the files
+and folders in that directory. Here, we will give a brief overview to help you
+find the files you're interested in.
+
+The main entry point for the program is located in INSERT_FILE_NAME. For more
+details on options, see the user documentation.
+
+Most documentation is located in the :file:`docs` folder. Some minor
+documentation or summaries may be included in the :file:`README.md` files. For
+more details, see the `Documentation`_ section.
+
+
+Resolving Issues
+================
+
+Issues are filed and tracked using GitHub's issue tracking system. Anyone can
+file an issue and anyone can help resolve issues.

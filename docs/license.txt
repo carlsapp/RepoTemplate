@@ -1,0 +1,18 @@
+*********
+Licensing
+*********
+
+Most files in this project are licensed under the GNU Lesser General Public
+License (LGPL). For a complete copy of the license, view the LICENSE file. See
+`the GNU website <https://www.gnu.org/licenses/lgpl-3.0.en.html>`_ for more
+information about the LGPL.
+
+The LGPL was chosen to allow users to integrate this project
+into larger projects that might contain proprietary code not suitable for
+public release. The LGPL was also chosen to force developers to push changes,
+additions, and modifications of this project back to community for others to
+use.
+
+The files located in the *libs* directory are not included under the LGPL
+project license. Each library has its own licensing terms and licensing details
+should be obtained from the authors.

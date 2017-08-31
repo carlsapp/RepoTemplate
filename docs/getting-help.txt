@@ -1,0 +1,14 @@
+************
+Getting Help
+************
+
+If you are having issues or are stuck on a particular problem, there are
+volunteers willing to help. The quickest way to get help is to post your
+question or issue to Stack Overflow. If you have already researched the code
+and have a high-level of confidence that the issue is a bug that needs a code
+change to fix, follow the directions in `Filing an Issue`_ to file an issue.
+
+Filing an Issue
+===============
+
+This project utilizes the GitHub issue tracking infrastructure.

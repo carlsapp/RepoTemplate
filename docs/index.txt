@@ -1,0 +1,22 @@
+The Repo Template Documentation
+===============================
+
+Welcome to the documentation for The Repo Template.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   getting-started
+   user-documentation
+   getting-help
+   contributing
+   license
+
+The repository template provides everything necessary to get a new open source
+project up and running in as little time as possible. The template provides
+code snippets, generic documentation, a webpage template, and the folder
+structure suitable for most open source projects. If you'd like to use this
+template for your open source project, start by looking at the
+:ref:`Getting Started` section. If you're interested in contributing to this
+project, take a look at the :ref:`Contributing` section.

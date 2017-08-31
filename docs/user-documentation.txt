@@ -1,0 +1,45 @@
+******************
+User Documentation
+******************
+
+This section will contain detailed information about the product and how to use
+it.
+
+Features
+========
+
+* **Documentation Template** - A generic docs directory is provided that builds
+  for Read the Docs and contains all of the generic documentation for an open
+  source project. For more details, see the `Documentation Template`_ section.
+* **Website Template** - A generic website is provided to quickly provide a
+  starting point for new users. For more details, see the `Website Template`_
+  section.
+
+Documentation Template
+----------------------
+
+*New in version 0.1.0*
+
+The :file:`docs` directory of this project contains all of the generic
+documentation for an open source project. The documentation is written in
+reStructuredText and contains a conf.py suitable for Read the Docs.
+
+Website Template
+----------------
+
+*New in version 0.1.0*
+
+The :file:`website` directory contains a `Bootstrap <http://getbootstrap.com/>`_
+themed site that can easily be modified for an open source project.
+
+Choosing a License
+==================
+
+The choice of a license for your project is an important decision. We recommend
+using the resources at http://choosealicense.com/ to make an educated choice.
+Once you have chosen a license, the following modifications need to be made if
+you are using anything other than the GNU Lesser General Public License (LGPL):
+
+#. Modify the :file:`LICENSE` file to include the new license.
+#. Modify all source files to include the license summary.
+#. Update :file:`docs/license.txt` to include details about the license.
