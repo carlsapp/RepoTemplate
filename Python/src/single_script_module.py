@@ -29,10 +29,53 @@ import logging
 
 # Set up our logger
 logger = logging.getLogger(__name__)
+# Remove any previously created handlers. Otherwise, you'll get duplicate output after a reload of this module.
+for handler in list(logger.handlers):
+    logger.removeHandler(handler)
 logger.setLevel(logging.INFO)
 _console_log_handler = logging.StreamHandler()
-_console_log_handler.setLevel(logging.INFO)
 logger.addHandler(_console_log_handler)
+
+
+def func_template(arg_one, arg_two='Arg2 Default Val', *args, **kwargs):
+    """
+    The function docstring.
+    :param arg_one: A required argument
+    :param arg_two: An optional arg with a default value
+    :param args: A list of any remaining positional (non-keyword) args
+    :param kwargs: A dictionary of any remaining keyword args
+    :return: A dictionary of all arguments.
+    """
+    return {
+        'arg_one': arg_one,
+        'arg_two': arg_two,
+        'args': args,
+        'kwargs': kwargs,
+    }
+
+
+def pyversion_str():
+    """
+    This function is here to show how to have Python version specific code, test it correctly, and combine coverage
+    reports to get 100% code coverage with your tests.
+    :return: A string representing the Python version.
+    """
+    import sys
+    # See the Release Schedules section of https://www.python.org/downloads/
+    if sys.version_info >= (3, 8):
+        return "Wow, this is a really new version of Python"
+    elif sys.version_info >= (3, 7):
+        return "Python v3.7"
+    elif sys.version_info >= (3, 6):
+        return "Python v3.6"
+    elif sys.version_info >= (3, 5):
+        return "Python v3.5"
+    elif sys.version_info >= (3, 4):
+        return "Python v3.4"
+    elif (2, 7) <= sys.version_info < (2, 8):
+        return "Python v2.7"
+    else:
+        return "Unknown Version"
 
 
 def main(args=None):

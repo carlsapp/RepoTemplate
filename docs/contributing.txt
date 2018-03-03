@@ -77,6 +77,44 @@ Most documentation is located in the :file:`docs` folder. Some minor
 documentation or summaries may be included in the :file:`README.md` files. For
 more details, see the `Documentation`_ section.
 
+Coding Style Guide
+------------------
+
+In general, we try to follow these style guides in this order:
+
+* `PEP 8 -- Style Guide for Python Code <https://www.python.org/dev/peps/pep-0008>`_ whenever writing Python code.
+* `Google Python Style Guide <https://google.github.io/styleguide/pyguide.html>`_ for Python code.
+* `Linux Kernel Coding Style <https://www.kernel.org/doc/html/v4.10/process/coding-style.html>`_
+* `Google C++ Style Guide <https://google.github.io/styleguide/cppguide.html>`_
+
+A Summary of Style Guide Advice For Any Code Type
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **Line Length** - Most style guides recommend 80 characters to fit on a console screen. I feel 80 characters is
+  outdated and a modern monitor can easily display 120 characters. This recommendation differs from the suggestions in
+  the `Google Python Style Guide <https://google.github.io/styleguide/pyguide.html>`_,
+  `PEP 8 <https://www.python.org/dev/peps/pep-0008>`_
+* **Whitespace** - Only use tabs if file size is a major concern. Use 4 spaces in place of a tab. Spaces allow code
+  to be aligned correctly.
+* **Naming Conventions**
+
+  * **File Names** - Use lowercase and underscores for file names. Agrees with
+    `Google Python Style Guide <https://google.github.io/styleguide/pyguide.html>`_,
+    `PEP 8 <https://www.python.org/dev/peps/pep-0008>`_, and
+    `Google C++ Style Guide <https://google.github.io/styleguide/cppguide.html>`_
+  * **Static or Const Variables** - Static or constant variable names should be all UPPER_CASE.
+  * **Classes** - Class names should be in CamelCase.
+  * **Functions** - Functions should be in lowercase with underscores.
+
+
+Python Code
+^^^^^^^^^^^
+
+General Advice:
+
+* Do as little as possible in the global namespace. Import commands that take a long time to execute and possibly throw
+  exceptions are frustrating.
+
 
 Resolving Issues
 ================

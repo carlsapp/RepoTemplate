@@ -41,6 +41,7 @@ except ImportError:
     else:
         raise
 
+
 class TestCmdLineInterface(unittest.TestCase):
     """
     This class attempts to test all features of the command line interface in the PythonTemplate
