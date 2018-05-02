@@ -39,3 +39,5 @@ This is a quick list of changes that I want to make to this template repo.
 * Integrate with [Coveralls](https://coveralls.io)
 * Integrate with https://snyk.io/
 * Integrate with https://codeclimate.com
+* Integrate with https://scan.coverity.com/
+* Integrate with https://bestpractices.coreinfrastructure.org
