@@ -13,15 +13,23 @@ To use this file to install this project as an editable package, change to this 
     pip install -e .
 
 """
-# Always prefer setuptools over distutils
+# Python Imports
 from setuptools import setup, find_packages
-# To use a consistent encoding
 from codecs import open
 from os import path
+from glob import glob
+
+# The most commonly changed parameters are located up here
+DISTRO_NAME = 'repo-template'
+DESCRIPTION = 'A Python module'
+PROJECT_URL = 'https://github.com/carlsapp/repo-template/'
+AUTHOR = 'Carl Sapp'
+AUTHOR_EMAIL = 'CarlSapp@gmail.com'
 
 # Get the long description from the README file
 with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
+# TODO Get the version from a version.txt file
 
 # Arguments marked as "Required" below must be included for upload to PyPI.
 # Fields marked as "Optional" may be commented out.
@@ -38,7 +46,7 @@ setup(
     # There are some restrictions on what makes a valid project name
     # specification here:
     # https://packaging.python.org/specifications/core-metadata/#name
-    name='repo_template',  # Required
+    name=DISTRO_NAME,  # Required
 
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
@@ -51,7 +59,7 @@ setup(
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#summary
-    description='A Python module',  # Required
+    description=DESCRIPTION,  # Required
 
     # This is an optional longer description of your project that represents
     # the body of text which users will see when they visit PyPI.
@@ -67,15 +75,15 @@ setup(
     #
     # This field corresponds to the "Home-Page" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#home-page-optional
-    url='https://github.com/carlsapp/repo-template/',  # Optional
+    url=PROJECT_URL,  # Optional
 
     # This should be your name or the name of the organization which owns the
     # project.
-    author='Carl Sapp',  # Optional
+    author=AUTHOR,  # Optional
 
     # This should be a valid email address corresponding to the author listed
     # above.
-    author_email='CarlSapp@gmail.com',  # Optional
+    author_email=AUTHOR_EMAIL,  # Optional
 
     # Classifiers help users find your project by categorizing it.
     #
@@ -121,6 +129,14 @@ setup(
     #   py_modules=["my_module"],
     #
     packages=find_packages('src'),  # Required
+    package_dir={'': 'src'},
+    # If you only have one package in this distribution and would like to eliminate the redundant project named folder
+    # in the src directory, use the following values for packages and package_dir
+    # packages=[DISTRO_NAME],
+    # package_dir={DISTRO_NAME: 'src'},
+
+    # Add any modules directly located in the src directory
+    py_modules=[path.splitext(path.basename(py_path))[0] for py_path in glob('src/*.py')],
 
     # This field lists other packages that your project depends on to run.
     # Any package you put here will be installed by pip when your project is
@@ -149,7 +165,7 @@ setup(
     # If using Python 2.6 or earlier, then these have to be included in
     # MANIFEST.in as well.
     package_data={  # Optional
-        'sample': ['package_data.dat'],
+        # 'sample': ['package_data.dat'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
@@ -157,7 +173,9 @@ setup(
     # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files
     #
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-    data_files=[('my_data', ['data/data_file'])],  # Optional
+    data_files=[
+        # ('my_data', ['data/data_file'])
+    ],  # Optional
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
@@ -168,7 +186,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'sample=sample:main',
+            'repo_template=single_script_module:main',
         ],
     },
 )

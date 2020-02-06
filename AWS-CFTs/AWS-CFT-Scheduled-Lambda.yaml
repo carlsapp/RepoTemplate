@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description:
+  Resources needed to deploy a scheduled lambda function.
+Parameters:
+  ScheduleExpression:
+    Description:
+      A rate or cron expression indicating when the lambda function should be
+      triggered. For more details, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html.
+      Examples:
+        cron(* * * * ? *) - Every minute of every day
+        cron(0 23 * * ? *) - 11 PM UTC Every Day
+    Default: cron(0 23 * * ? *)  # 11 PM UTC Every Day
+    Type: String
+
+Resources:
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ lambda.amazonaws.com ]
+            Action: [ 'sts:AssumeRole' ]
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  LambdaSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: A schedule for triggering a Lambda function.
+      ScheduleExpression: !Ref ScheduleExpression
+      Targets:
+        - Arn: !GetAtt LambdaFunction.Arn
+          Id: !GetAtt LambdaFunction.Arn  # This can be any value that's unique
+
+  LambdaSchedulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt LambdaFunction.Arn
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt LambdaSchedule.Arn
+
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Lambda function that gets run on a schedule.
+      Code:
+        ZipFile: |
+          def lambda_handler(event, context):
+            print('Hello World!')
+      Handler: index.lambda_handler
+      Role: !Sub ${LambdaExecutionRole.Arn}
+      Runtime: python3.6

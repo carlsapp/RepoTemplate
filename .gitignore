@@ -1,34 +1,18 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
+# Python-Specific Files and Folders
+# PYC Repository Directories https://www.python.org/dev/peps/pep-3147/
+**/__pycache__
+# Python byte-code files
+**/*.pyc
+# Python optimized byte-code files
+**/*.pyo
+# Windows Python shared object files
+**/*.pyd
+# Jython equivalent of .pyc
+**/*$py.class
+# Python Setuptools egg directory or zipfile https://setuptools.readthedocs.io/en/latest/formats.html
 *.egg
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+# Python Setuptools egg directory or zipfile https://setuptools.readthedocs.io/en/latest/formats.html
+**/*.egg-info/*
 
 # Installer logs
 pip-log.txt
@@ -93,3 +77,6 @@ ENV/
 
 # Windows Files
 **/desktop.ini
+
+# Linux Files
+*.so  # Linux Shared Objects

@@ -1,0 +1,150 @@
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html
+AWSTemplateFormatVersion: '2010-09-09'
+Description:
+  This AWS CloudFormation template is used to launch an EC2 instance at a scheduled
+  time. We achieve this goal by creating an auto-scaling group with a desired size
+  of 0. Then, we have a lambda function that gets executed on a schedule to change
+  the desired number of instances to 1. When the script on the EC2 instance is done,
+  its resets the desired number of instances to 0.
+
+Parameters:
+  InstanceType:
+    AllowedValues: [
+      t1.micro, t2.nano, t2.micro, t2.small, t2.medium, t2.large,
+      t3.nano, t3.micro, t3.small, t3.medium, t3.large, t3.xlarge, t3.2xlarge,
+      m1.small, m1.medium, m1.large, m1.xlarge, m2.xlarge, m2.2xlarge, m2.4xlarge,
+      m3.medium, m3.large, m3.xlarge, m3.2xlarge,
+      m4.large, m4.xlarge, m4.2xlarge, m4.4xlarge, m4.10xlarge,
+      c1.medium, c1.xlarge,
+      c3.large, c3.xlarge, c3.2xlarge, c3.4xlarge, c3.8xlarge,
+      c4.large, c4.xlarge, c4.2xlarge, c4.4xlarge, c4.8xlarge, g2.2xlarge,
+      g2.8xlarge,
+      r3.large, r3.xlarge, r3.2xlarge, r3.4xlarge, r3.8xlarge,
+      i2.xlarge, i2.2xlarge, i2.4xlarge, i2.8xlarge,
+      d2.xlarge, d2.2xlarge, d2.4xlarge, d2.8xlarge,
+      hi1.4xlarge, hs1.8xlarge, cr1.8xlarge, cc2.8xlarge, cg1.4xlarge ]
+    Default: t3.nano  # Setting default to the cheapest
+    Description: EC2 instance type
+    Type: String
+  AmiId:
+    # For more details on using Systems Manager Public Parameters, see
+    # https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-about.html#parameter-store-public-parameters
+    # For more information about using this public, see
+    # https://aws.amazon.com/blogs/compute/query-for-the-latest-amazon-linux-ami-ids-using-aws-systems-manager-parameter-store/
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Description: Amazon Linux image to use
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+    AllowedValues:
+      - /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-ebs
+      - /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+      - /aws/service/ami-amazon-linux-latest/amzn2-ami-minimal-hvm-x86_64-ebs
+  SSHKeyName:
+    Description: The EC2 KeyPair for SSH access to the EC2 instance
+    Type: AWS::EC2::KeyPair::KeyName
+  IamInstanceProfileArn:
+    Type: String
+    Description: ARN of the IAM instance profile to attach to the EC2 instance
+    # Delete this default
+    Default: arn:aws:iam::801160595557:instance-profile/ec2-test-role
+  SecurityGroups:
+    Type: List<AWS::EC2::SecurityGroup::GroupName>
+    Description: Security groups to attach to the EC2 instance
+  HDSize:
+    Type: Number
+    Description: EC2 instance root hard drive volume size in GB
+    Default: 10
+  StartupScriptPath:
+    Type: String
+    Description: S3 path to a script to execute at startup on the EC2 instance
+    Default: s3://s3-bucket/execute-node-script.sh
+  ScheduleExpression:
+    Description:
+      A rate or cron expression indicating when the EC2 instance should be
+      triggered. For more details, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html.
+    Default: cron(0 23 * * ? *)  # 11 PM UTC Every Day
+    Type: String
+
+Resources:
+
+  LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId: !Ref AmiId
+        InstanceType: !Ref InstanceType
+        KeyName: !Ref SSHKeyName
+        SecurityGroups: !Ref SecurityGroups
+        IamInstanceProfile:
+          Arn: !Ref IamInstanceProfileArn
+        BlockDeviceMappings:
+          - DeviceName: /dev/xvda
+            Ebs:
+              VolumeSize: !Ref HDSize
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash -xe
+            sudo yum install -y awscli
+            aws s3 cp ${StartupScriptPath} startupscript
+            chmod +x startupscript
+            ./startupscript
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ lambda.amazonaws.com ]
+            Action: [ 'sts:AssumeRole' ]
+      Policies:
+        - PolicyName: LambdaRunInstances
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement: 
+              - Effect: Allow
+                Action:
+                  - ec2:RunInstances
+                  - iam:PassRole
+                Resource: '*'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  LambdaSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: A schedule for triggering a Lambda function.
+      ScheduleExpression: !Ref ScheduleExpression
+      Targets:
+        - Arn: !GetAtt LambdaFunction.Arn
+          Id: !Ref LambdaFunction  # This can be any value that's unique
+
+  LambdaSchedulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt LambdaFunction.Arn
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt LambdaSchedule.Arn
+
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Lambda function that gets run on a schedule.
+      Code:
+        ZipFile: !Sub |
+          import boto3
+          client = boto3.client('ec2')
+          def lambda_handler(event, context):
+              resp = client.run_instances(
+                  LaunchTemplate={
+                      'LaunchTemplateId': '${LaunchTemplate}'
+                  },
+                  MaxCount=1,
+                  MinCount=1
+              )
+              instance_id = resp['Instances'][0]['InstanceId']
+              print('Launched EC2 Instance ' + instance_id + ' ' + 'https://console.aws.amazon.com/ec2/home?region=us-east-1#Instances:instanceId=' + instance_id)
+      Handler: index.lambda_handler
+      Role: !Sub ${LambdaExecutionRole.Arn}
+      Runtime: python3.6

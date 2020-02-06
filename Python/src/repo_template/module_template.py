@@ -87,6 +87,9 @@ def main(args=None):
     )
     # Our optional arguments
     cmd_line_parser.add_argument('-a', '--some-arg')
+    # This example shows the default values for all of the arguments to add_argument() for an optional argument
+    cmd_line_parser.add_argument('--default_vals', action='store', nargs='?', const=None, default=None, type=str,
+                                 choices=None, required=False, help='', metavar='default_vals', dest='default_vals')
 
     # This section shows an example of using a custom check for an argument
     def custom_arg_check(arg_value):
