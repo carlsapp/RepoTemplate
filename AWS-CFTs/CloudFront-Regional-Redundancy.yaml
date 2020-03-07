@@ -1,0 +1,241 @@
+# An AWS CloudFormation template for bringing up a CloudFront distribution with regional failover.
+# To deploy, first create a stack in your secondary region with the Region parameter set to
+# secondary. Record the output values and use them when bringing up another stack in your primary
+# region.
+#
+# The lambda function used in this stack is configured to fail health checks in the primary region
+# every 5 minutes. For example, here's a cycle of status codes it returns:
+#   7:01 - 7:05    500
+#   7:06 - 7:10    200
+#   7:11 - 7:15    500
+#   7:16 - 7:20    200
+#   ...
+#
+# Notes for testing:
+#   - The DNS TTL is 60 seconds, which means you might have to wait up to 60 seconds to see
+#     changes. This is a limitation of Route53 using aliases to the load balancer.
+#   - Chrome will cache the DNS. After your OS DNS TTL has expired, clear Chrome's DNS cache by
+#     visiting chrome://net-internals/#dns.
+#   - The active-active weighted round-robin isn't a perfect round robin. It might take up to 5
+#     renewals before you change regions.
+#   - Use dig to see your current TTL: dig active-active.regional-failover-router.carlsapp.com
+AWSTemplateFormatVersion: 2010-09-09
+Description: A proof of concept for regional redundancy options
+
+Parameters:
+  ALBSubnets:
+    Type: List<AWS::EC2::Subnet::Id>
+  HostedZone:
+    Description: This domain name can be anything. Just be sure and set the NS records.
+    Type: String
+    Default: regional-failover-router.carlsapp.com
+  SecondaryAlbDNS:
+    Description: The ALB DNS name from the outputs of creating this stack in the secondary region.
+    Type: String
+  SecondaryAlbHostedZoneId:
+    Description: The ALB Canonical Hosted Zone ID from the outputs of creating this stack in the secondary region.
+    Type: String
+  Region: 
+    Description: Are we in the primary or secondary region? CloudFront and Route53 are only built in the primary region.
+    Default: Primary
+    Type: String
+    AllowedValues: 
+      - Primary
+      - Secondary
+
+Conditions: 
+  InPrimaryRegion: !Equals [ !Ref Region, Primary ]
+
+Resources:
+
+  CloudFront:
+    Type: AWS::CloudFront::Distribution
+    Condition: InPrimaryRegion
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Origins:
+          - DomainName: !Sub "active-active.${HostedZone}"
+            Id: Active-Active
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+          - DomainName: !Sub "failover.${HostedZone}"
+            Id: Failover
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+        CacheBehaviors:
+          - PathPattern: /active-active
+            TargetOriginId: Active-Active
+            AllowedMethods: [ GET, HEAD ]
+            ViewerProtocolPolicy: allow-all
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            ForwardedValues:
+              QueryString: false
+              Cookies:
+                Forward: none
+        DefaultCacheBehavior: # Will catch /failover
+          TargetOriginId: Failover
+          AllowedMethods: [ GET, HEAD ]
+          ViewerProtocolPolicy: allow-all
+          MinTTL: 0
+          MaxTTL: 0
+          DefaultTTL: 0
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+
+  Route53HostedZone:
+    Type: AWS::Route53::HostedZone
+    Condition: InPrimaryRegion
+    Properties:
+      Name: !Ref HostedZone
+
+  Route53RecordSet:
+    Type: AWS::Route53::RecordSetGroup
+    Condition: InPrimaryRegion
+    Properties:
+      HostedZoneId: !Ref Route53HostedZone
+      RecordSets:
+        - Name: !Sub "active-active.${HostedZone}"
+          Type: A
+          Weight: 50
+          SetIdentifier: Primary Region
+          AliasTarget:
+            DNSName: !GetAtt LoadBalancer.DNSName
+            HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+            EvaluateTargetHealth: true
+        - Name: !Sub "active-active.${HostedZone}"
+          Type: A
+          Weight: 50
+          SetIdentifier: Secondary Region
+          AliasTarget:
+            DNSName: !Ref SecondaryAlbDNS
+            HostedZoneId: !Ref SecondaryAlbHostedZoneId
+        - Name: !Sub "failover.${HostedZone}"
+          Type: A
+          Failover: PRIMARY
+          SetIdentifier: Primary Region
+          AliasTarget:
+            DNSName: !GetAtt LoadBalancer.DNSName
+            HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+            EvaluateTargetHealth: true
+        - Name: !Sub "failover.${HostedZone}"
+          Type: A
+          Failover: SECONDARY
+          SetIdentifier: Secondary Region
+          AliasTarget:
+            DNSName: !Ref SecondaryAlbDNS
+            HostedZoneId: !Ref SecondaryAlbHostedZoneId
+            EvaluateTargetHealth: true
+
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          module.exports.handler = async function () {
+            const resp = {
+              statusCode: 200,
+              headers: {
+                'Content-Type': 'text/html; charset=utf-8',
+              },
+              body: `Hello from the ${process.env.REGION} region! Both regions healthy!`,
+            };
+            const minutes = new Date().getMinutes();
+            if (minutes % 10 >= 1 && minutes % 10 <= 5) {
+              // Every 5 minutes we'll switch from failure to non-failure
+              if (process.env.REGION === 'us-east-1') {
+                resp.statusCode = 500;
+              }
+              resp.body = `Hello from the ${process.env.REGION} region! Primary region down!`;
+            }
+            return resp;
+          };
+      Handler: index.handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Runtime: nodejs10.x
+      Environment:
+        Variables:
+          REGION: !Ref AWS::Region
+
+  LambdaIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  ALBLambdaInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt LambdaFunction.Arn
+      Principal: elasticloadbalancing.amazonaws.com
+  
+  ALBSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Allow port 80 into the load balancer
+      SecurityGroupIngress: 
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: 80
+          ToPort: 80
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets: !Ref ALBSubnets
+      SecurityGroups:
+        - !GetAtt ALBSG.GroupId
+
+  LoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties: 
+      DefaultActions: 
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      TargetType: lambda
+      HealthCheckEnabled: true
+      # The TTL on DNS is 60 seconds, so no need to be faster than that
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 2
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+      Targets:
+        - Id: !GetAtt LambdaFunction.Arn
+
+Outputs:
+  ALBDNSName:
+    Description: The ALB DNS name
+    Value: !GetAtt LoadBalancer.DNSName
+  ALBCanonicalHostedZoneId:
+    Description: The ALB canonical hosted zone ID
+    Value: !GetAtt LoadBalancer.CanonicalHostedZoneID
+  # We can't include the below outputs when bringing up the secondary region
+  # Route53NameServers:
+  #   Description: The name servers for the Route53 hosted zone
+  #   Value: !Join [",", !GetAtt Route53HostedZone.NameServers]
+  # ActiveActiveURL:
+  #   Description: Visit this URL to test the active-active configuration.
+  #   Value: !Sub "https://${CloudFront.DomainName}/active-active"
+  # FailoverURL:
+  #   Description: Visit this URL to test the failover configuration.
+  #   Value: !Sub "https://${CloudFront.DomainName}/failover"
